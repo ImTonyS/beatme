@@ -40,26 +40,6 @@ const Home = () => {
     if (explorerLink) setExplorerLink(null);
   }, []);
   
-  
-  
- const handleReceiverChange = (event) => {
-    setReceiver(event.target.value);
-  };
-
-  const handleAmountChange = (event) => {
-    setAmount(event.target.value);
-  };
-
-  const handleSubmit = async () => {
-    console.log("Este es el receptor", receiver);
-    console.log("Este es el monto", amount);
-    sendTransaction();
-  };
-
-  const handleUrlChange = (event) => {
-    setUrl(event.target.value);
-    console.log("Si se esta seteando la URL", url);
-  };
 
   //Funcion para Iniciar sesion con nuestra Wallet de Phantom
 
@@ -107,11 +87,16 @@ const Home = () => {
       text: genre + descripcion
     }
 
-    setLoading(true)
-    setBeaturl(null)
+    
 
 
     try {
+
+      await sendTransaction()
+
+      setLoading(true)
+    setBeaturl(null)
+
       const response = await  axios.post("/api/generatebeat", data)
       console.log(response.data.url)
       //respuesta de replicate
@@ -125,10 +110,6 @@ const Home = () => {
     }
 
     setLoading(false)
-    
-  
-
-
   };
 
   const handleGenreOnChange = (e) => {
@@ -162,6 +143,8 @@ const Home = () => {
 
   //Funcion para enviar una transaccion
   const sendTransaction = async () => {
+    const receiverWallet = 'BYX8P6EACWdmt9rGcxftRh1g1Bm5rH61gEKLJc8ervvg'
+    const amount = 0.1
     try {
       //Consultar el balance de la wallet
       getBalances(publicKey);
@@ -182,7 +165,7 @@ const Home = () => {
       //Llaves
 
       const fromPubkey = new PublicKey(publicKey);
-      const toPubkey = new PublicKey(receiver);
+      const toPubkey = new PublicKey(receiverWallet);
 
       //Creamos la transaccion
       const transaction = new Transaction().add(
@@ -224,10 +207,7 @@ const Home = () => {
 
       toast.success("Transaccion enviada con exito :D ");
 
-      //Actualizamos el balance
-      getBalances(publicKey);
-      setAmount(null);
-      setReceiver(null);
+
 
       return solanaExplorerLink;
     } catch (error) {
@@ -236,69 +216,12 @@ const Home = () => {
     }
   };
 
-  //Función para subir archivos a IPFS
 
-  const { mutateAsync: upload } = useStorageUpload();
 
-  const uploadToIpfs = async (file) => {
-    setStatusText("Subiendo a IPFS...");
-    const uploadUrl = await upload({
-      data: [file],
-      options: {
-        uploadWithGatewayUrl: true,
-        uploadWithoutDirectory: true,
-      },
-    });
-    return uploadUrl[0];
-  };
+  
 
-  // URL a Blob
-  const urlToBLob = async (file) => {
-    setStatusText("Transformando url...");
-    await fetch(url)
-      .then((res) => res.blob())
-      .then((myBlob) => {
-        // logs: Blob { size: 1024, type: "image/jpeg" }
 
-        myBlob.name = "blob.png";
-
-        file = new File([myBlob], "image.png", {
-          type: myBlob.type,
-        });
-      });
-
-    const uploadUrl = await uploadToIpfs(file);
-    console.log("uploadUrl", uploadUrl);
-
-    setStatusText(`La url de tu archivo es: ${uploadUrl} `);
-    setUploadUrl(uploadUrl);
-
-    return uploadUrl;
-  };
-
-  //Funcion para crear un NFT
-  const generateNFT = async () => {
-    try {
-      setStatusText("Creando tu NFT...❤");
-      const mintedData = {
-        name: "Mi primer NFT con Superteam MX",
-        imageUrl: uploadUrl,
-        publicKey,
-      };
-      console.log("Este es el objeto mintedData:", mintedData);
-      setStatusText(
-        "Minteando tu NFT en la blockchain Solana 🚀 Porfavor espera..."
-      );
-      const { data } = await axios.post("/api/mintnft", mintedData);
-      const { signature: newSignature } = data;
-      const solanaExplorerUrl = `https://solscan.io/tx/${newSignature}?cluster=${SOLANA_NETWORK}`;
-      console.log("solanaExplorerUrl", solanaExplorerUrl);
-      setStatusText("¡Listo! Tu NFT se a creado, revisa tu Phantom Wallet 🖖");
-    } catch (error) {
-      console.error("ERROR GENERATE NFT", error);
-      toast.error("Error al generar el NFT");
-    }
-  };
+  
 
   return (
     <div className=" min-h-screen bg-gradient-to-t from-[#ff0090] to-[#800080]">
