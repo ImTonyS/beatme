@@ -30,7 +30,7 @@ const Home = () => {
 
   const [genre, setGenre] = useState(null);
   const [descripcion, setDescription] = useState(null);
-  const [beatUrl, setBeaturl] = useState("jkdsfnbjkdfsbhjb");
+  const [beatUrl, setBeaturl] = useState(null);
   const [loading, setLoading] = useState(false)
 
   useEffect(() => {
@@ -117,9 +117,11 @@ const Home = () => {
       //respuesta de replicate
 
       setBeaturl(response.data.url)
+      toast.success("Beat generated :D")
 
     } catch (error) {
       console.log("paso un error con el backend")
+        toast.error("Something happened in the server u.u");
     }
 
     setLoading(false)
