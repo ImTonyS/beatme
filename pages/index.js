@@ -30,7 +30,8 @@ const Home = () => {
 
   const [genre, setGenre] = useState(null);
   const [descripcion, setDescription] = useState(null);
-  const [beatUrl, setBeaturl] = useState(null);
+  const [beatUrl, setBeaturl] = useState("jkdsfnbjkdfsbhjb");
+  const [loading, setLoading] = useState(false)
 
   useEffect(() => {
     let key = window.localStorage.getItem("publicKey"); //obtiene la publicKey del localStorage
@@ -106,6 +107,9 @@ const Home = () => {
       text: genre + descripcion
     }
 
+    setLoading(true)
+    setBeaturl(null)
+
 
     try {
       const response = await  axios.post("/api/generatebeat", data)
@@ -117,6 +121,8 @@ const Home = () => {
     } catch (error) {
       console.log("paso un error con el backend")
     }
+
+    setLoading(false)
     
   
 
@@ -305,7 +311,10 @@ const Home = () => {
 
         {publicKey ? (
           <div className="flex flex-col py-20 place-items-center justify-center w-full md:px-20 max-w-2xl">
-            <label
+            
+            {!loading  ? (
+             <>
+               <label
               for="countries"
               className="block mb-2 text-1xl font-bold text-[#ffff] dark:text-white"
             >
@@ -345,13 +354,7 @@ const Home = () => {
               }}
             ></textarea>
 
-            {
-              beatUrl && (
-                <a href={beatUrl} target="_blank">Da click para escuchar tu beat</a>
-              )
-            }
-
-            <div className="flex flex-col ">
+<div className="flex flex-col ">
               <button
                 type="submit"
                 className="inline-flex mb-4 h-8 w-52 rounded-full justify-center bg-[#581845]  font-bold text-white"
@@ -362,7 +365,23 @@ const Home = () => {
                 Generate 
               </button>
 
-              <button
+            
+            </div>
+             </>
+            ): (
+              <p className="text-white py-8">Generating your beat...</p>
+            )}
+
+            {
+              beatUrl && (
+              <>
+
+                 <a href={beatUrl} target="_blank" className="text-white text-3xl font-bold underline cursor-pointer my-8">Click to listen your beat </a> 
+               </>
+              )
+            }
+
+<button
                 type="submit"
                 className="inline-flex h-8 w-52 rounded-full justify-center bg-[#581845] font-bold text-white "
                 onClick={() => {
@@ -371,7 +390,8 @@ const Home = () => {
               >
                 Disconnect my wallet
               </button>
-            </div>
+
+            
           </div>
         ) : (
           <div className="flex flex-col place-items-center justify-center my-16 ">
