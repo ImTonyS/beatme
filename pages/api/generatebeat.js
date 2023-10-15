@@ -21,7 +21,7 @@ export default async function handler(req, res) {
       input: {
         model_version: "melody",
         prompt: text,
-        duration: 4,
+        duration: 10,
         output_format: "mp3"
       }
     }
